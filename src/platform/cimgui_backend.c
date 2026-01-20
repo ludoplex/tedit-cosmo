@@ -191,6 +191,26 @@ static void render_menu_bar(void) {
     }
 }
 
+/* Count lines in text buffer */
+static int count_lines(const char *text) {
+    int lines = 1;
+    for (const char *p = text; *p; p++) {
+        if (*p == '\n') lines++;
+    }
+    return lines;
+}
+
+/* Gutter width based on line count */
+static float get_gutter_width(int line_count) {
+    if (line_count < 100) return 40.0f;
+    if (line_count < 1000) return 50.0f;
+    if (line_count < 10000) return 60.0f;
+    return 70.0f;
+}
+
+/* Track scroll position for syncing */
+static float g_editor_scroll_y = 0.0f;
+
 static void render_editor(void) {
     ImGuiIO *io = igGetIO();
     
@@ -205,21 +225,85 @@ static void render_editor(void) {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | 
                              ImGuiWindowFlags_NoResize |
                              ImGuiWindowFlags_NoMove |
-                             ImGuiWindowFlags_NoCollapse;
+                             ImGuiWindowFlags_NoCollapse |
+                             ImGuiWindowFlags_NoScrollbar;
     
     if (igBegin("Editor", NULL, flags)) {
-        /* Multi-line text input */
+        int line_count = count_lines(g_text_buffer);
+        float gutter_width = get_gutter_width(line_count);
+        float line_height = igGetTextLineHeight();
+        
+        ImVec2 content_size;
+        igGetContentRegionAvail(&content_size);
+        
+        /* === LINE NUMBER GUTTER === */
+        ImVec2 gutter_size = {gutter_width, content_size.y};
+        
+        igBeginChild_Str("##gutter", gutter_size, false, 
+                         ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        {
+            /* Sync scroll with editor */
+            igSetScrollY_Float(g_editor_scroll_y);
+            
+            /* Draw line numbers */
+            ImDrawList *draw_list = igGetWindowDrawList();
+            ImVec2 cursor_pos;
+            igGetCursorScreenPos(&cursor_pos);
+            
+            ImU32 line_num_color = IM_COL32(140, 140, 140, 255);  /* Gray */
+            ImU32 gutter_bg = IM_COL32(30, 30, 30, 255);          /* Dark background */
+            
+            /* Gutter background */
+            ImVec2 gutter_min = cursor_pos;
+            ImVec2 gutter_max = {cursor_pos.x + gutter_width - 5, cursor_pos.y + line_count * line_height};
+            ImDrawList_AddRectFilled(draw_list, gutter_min, gutter_max, gutter_bg, 0.0f, 0);
+            
+            /* Draw each line number */
+            for (int i = 1; i <= line_count; i++) {
+                char line_str[16];
+                snprintf(line_str, sizeof(line_str), "%d", i);
+                
+                /* Right-align line numbers */
+                ImVec2 text_size;
+                igCalcTextSize(&text_size, line_str, NULL, false, 0);
+                
+                ImVec2 text_pos;
+                text_pos.x = cursor_pos.x + gutter_width - text_size.x - 10;
+                text_pos.y = cursor_pos.y + (i - 1) * line_height;
+                
+                ImDrawList_AddText_Vec2(draw_list, text_pos, line_num_color, line_str, NULL);
+            }
+            
+            /* Reserve space for all lines */
+            igDummy((ImVec2){gutter_width, line_count * line_height});
+        }
+        igEndChild();
+        
+        /* Same line - editor next to gutter */
+        igSameLine(0, 0);
+        
+        /* === TEXT EDITOR === */
         ImVec2 editor_size;
-        editor_size.x = -1; /* Fill width */
-        editor_size.y = -1; /* Fill height */
+        editor_size.x = content_size.x - gutter_width;
+        editor_size.y = content_size.y;
         
         ImGuiInputTextFlags input_flags = ImGuiInputTextFlags_AllowTabInput;
         
-        if (igInputTextMultiline("##editor", g_text_buffer, sizeof(g_text_buffer),
-                                  editor_size, input_flags, NULL, NULL)) {
-            EditorState *ed = app_get_active_editor(g_app);
-            if (ed) ed->dirty = 1;
+        /* Use a child window to capture scroll */
+        igBeginChild_Str("##editor_child", editor_size, false, 0);
+        {
+            ImVec2 input_size = {-1, -1};
+            
+            if (igInputTextMultiline("##editor", g_text_buffer, sizeof(g_text_buffer),
+                                      input_size, input_flags, NULL, NULL)) {
+                EditorState *ed = app_get_active_editor(g_app);
+                if (ed) ed->dirty = 1;
+            }
+            
+            /* Capture scroll position for gutter sync */
+            g_editor_scroll_y = igGetScrollY();
         }
+        igEndChild();
     }
     igEnd();
 }
