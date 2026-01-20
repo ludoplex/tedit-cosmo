@@ -1,0 +1,35 @@
+[&Project]
+Build,cosmocc -O2 -o {b}.com {b}.c
+-
+Run Executable,./{b}.com
+-
+Build && Run,cosmocc -O2 -o {b}.com {b}.c && ./{b}.com
+
+[&Tools]
+Color Picker,{e}cpicker.exe
+-
+Run Script,{e}scripts/{n}.qse
+
+[&Code]
+Cosmopolitan Hello World,{e}textape/hello.txt
+APE Minimal Example,{e}textape/minimal.txt
+-
+Insert Comment Block,{e}textape/comment.txt
+
+[Con&versions]
+Text to HEX,{e}multitool.exe 5
+
+[&Text]
+Insert STACKFRAME,{e}textape/stackframe.txt
+Insert NOSTACKFRAME,{e}textape/nostackframe.txt
+-
+Insert Comment Block,{e}textape/comment.txt
+
+[&Help]
+About tedit-cosmo,about
+-
+Cosmopolitan Docs,https://justine.lol/cosmopolitan/
+jart/cosmopolitan GitHub,https://github.com/jart/cosmopolitan
+-
+MASM Forum,http://www.masm32.com/board/
+

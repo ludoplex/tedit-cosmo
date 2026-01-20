@@ -1,0 +1,21 @@
+# Build outputs
+*.com
+*.exe
+*.o
+*.obj
+
+# Dependencies (vendored separately)
+deps/cimgui/
+deps/glfw/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,100 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.h": "c",
+			"*.c": "c",
+			"*.asm": "asm",
+			"*.inc": "asm",
+			"*.qse": "ini",
+			"menuini.txt": "ini"
+		},
+		"C_Cpp.default.includePath": [
+			"${workspaceFolder}/include",
+			"${workspaceFolder}/deps/cimgui",
+			"${workspaceFolder}/deps/cimgui/imgui"
+		],
+		"C_Cpp.default.defines": [
+			"PLATFORM_CLI"
+		],
+		"C_Cpp.default.cStandard": "c11",
+		"C_Cpp.default.cppStandard": "c++11",
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true,
+		"files.trimTrailingWhitespace": true,
+		"files.insertFinalNewline": true,
+		"search.exclude": {
+			"**/deps/**": true,
+			"**/*.com": true,
+			"**/*.exe": true
+		}
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Build CLI",
+				"type": "shell",
+				"command": "make",
+				"args": ["cli"],
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": ["$gcc"],
+				"detail": "Build CLI-only version with cosmocc"
+			},
+			{
+				"label": "Build GUI",
+				"type": "shell",
+				"command": "make",
+				"args": ["gui"],
+				"group": "build",
+				"problemMatcher": ["$gcc"],
+				"detail": "Build GUI version with cimgui"
+			},
+			{
+				"label": "Clean",
+				"type": "shell",
+				"command": "make",
+				"args": ["clean"],
+				"group": "build",
+				"problemMatcher": []
+			},
+			{
+				"label": "Setup Dependencies",
+				"type": "shell",
+				"command": "powershell",
+				"args": ["-ExecutionPolicy", "Bypass", "-File", "scripts/setup-deps.ps1"],
+				"group": "build",
+				"problemMatcher": [],
+				"detail": "Clone cimgui and other dependencies"
+			}
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Run tedit-cosmo",
+				"type": "cppvsdbg",
+				"request": "launch",
+				"program": "${workspaceFolder}/tedit.com",
+				"args": [],
+				"cwd": "${workspaceFolder}",
+				"console": "integratedTerminal"
+			}
+		]
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools",
+			"ms-vscode.makefile-tools"
+		]
+	}
+}
+
