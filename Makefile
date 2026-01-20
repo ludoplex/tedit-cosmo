@@ -18,7 +18,9 @@ SRC_CORE = \
 	src/build.c \
 	src/syntax.c \
 	src/util.c \
-	src/script.c
+	src/script.c \
+	src/history.c \
+	src/backup.c
 
 # CLI backend
 SRC_CLI = src/platform/cli.c

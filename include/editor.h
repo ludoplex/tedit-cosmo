@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include "buffer.h"
 #include "syntax.h"
+#include "history.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,6 +15,7 @@ extern "C" {
 
 typedef struct EditorState {
     Buffer *buffer;
+    History *history;           /* Write-through operation history */
     char file_path[260];
     size_t cursor_line;
     size_t cursor_col;
@@ -22,6 +24,7 @@ typedef struct EditorState {
     Language language;
     int dirty;
     int readonly;
+    int history_enabled;        /* Enable/disable history tracking */
 } EditorState;
 
 EditorState *editor_create(void);
@@ -47,6 +50,18 @@ char *editor_get_selection(EditorState *ed, size_t *len);
 /* Cursor */
 void editor_goto_line(EditorState *ed, size_t line);
 void editor_get_cursor_pos(EditorState *ed, size_t *line, size_t *col);
+
+/* File operations */
+int editor_load_file(EditorState *ed, const char *path);
+int editor_save_file(EditorState *ed, const char *path);
+
+/* History management */
+void editor_enable_history(EditorState *ed, int enable);
+int editor_has_history(EditorState *ed);
+size_t editor_history_size(EditorState *ed);
+int editor_history_compact(EditorState *ed, const char *archive_path);
+int editor_history_export(EditorState *ed, const char *output_path);
+int editor_history_clear(EditorState *ed);
 
 #ifdef __cplusplus
 }

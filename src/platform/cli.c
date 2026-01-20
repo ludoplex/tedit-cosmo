@@ -31,6 +31,11 @@ static void print_help(void) {
     printf("  goto <line>          - Go to line\n");
     printf("  lang <language>      - Set syntax (cosmo|amd64|aarch64|masm64|masm32)\n");
     printf("  menu <ini_path>      - Load menu from INI\n");
+    printf("  undo                 - Undo last edit\n");
+    printf("  redo                 - Redo last undone edit\n");
+    printf("  history              - Show history info\n");
+    printf("  history export <out> - Export history to file\n");
+    printf("  history clear        - Clear edit history\n");
     printf("  help                 - Show this help\n");
     printf("  quit                 - Exit\n");
 }
@@ -215,6 +220,53 @@ static void handle_command(const char *line) {
         } else {
             printf("Usage: template <filename>\n");
             printf("  Looks in textape/ directory by default\n");
+        }
+    }
+    else if (strcmp(cmd, "undo") == 0 || strcmp(cmd, "u") == 0) {
+        if (ed) {
+            editor_undo(ed);
+            printf("Undo.\n");
+        }
+    }
+    else if (strcmp(cmd, "redo") == 0) {
+        if (ed) {
+            editor_redo(ed);
+            printf("Redo.\n");
+        }
+    }
+    else if (strcmp(cmd, "history") == 0) {
+        if (ed) {
+            if (strcmp(arg, "export") == 0) {
+                printf("Enter output file path: ");
+                char out[256];
+                if (fgets(out, sizeof(out), stdin)) {
+                    str_trim(out);
+                    if (editor_history_export(ed, out) == 0) {
+                        printf("History exported to: %s\n", out);
+                    } else {
+                        printf("Failed to export history.\n");
+                    }
+                }
+            } else if (strcmp(arg, "clear") == 0) {
+                if (editor_history_clear(ed) == 0) {
+                    printf("History cleared.\n");
+                } else {
+                    printf("Failed to clear history.\n");
+                }
+            } else {
+                /* Show history info */
+                printf("History:\n");
+                printf("  File: %s\n", ed->file_path);
+                printf("  Size: %zu bytes\n", editor_history_size(ed));
+                printf("  Enabled: %s\n", ed->history_enabled ? "yes" : "no");
+                if (ed->history) {
+                    printf("  Has history: yes\n");
+                } else {
+                    printf("  Has history: no (save file first)\n");
+                }
+            }
+        } else {
+            printf("No active editor.\n");
         }
     }
     else if (cmd[0]) {

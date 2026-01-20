@@ -1,29 +1,60 @@
+[&File]
+New,file_new
+Open...,file_open
+-
+Save,file_save
+Save As...,file_save_as
+-
+&Backup
+  Backup Now (Local),tedit --backup local
+  Backup to Cloud,tedit --backup s3
+  -
+  List Destinations,tedit --backup-list
+-
+Exit,file_exit
+
+[&Edit]
+Undo,edit_undo
+Redo,edit_redo
+-
+Cut,edit_cut
+Copy,edit_copy
+Paste,edit_paste
+-
+Select All,edit_select_all
+-
+&History
+  Show History Info,tedit --history-info "{e}"
+  Export History,tedit --history-export "{e}" "{e}.history.txt"
+  Compact History,tedit --history-compact "{e}"
+  Clear History,tedit --history-clear "{e}"
+
 [&Project]
-Build,cosmocc -O2 -o {b}.com {b}.c
+Build,cosmocc -O2 -o {n}.com {e}
 -
-Run Executable,./{b}.com
+Run Executable,./{n}.com
 -
-Build && Run,cosmocc -O2 -o {b}.com {b}.c && ./{b}.com
+Build && Run,cosmocc -O2 -o {n}.com {e} && ./{n}.com
 
 [&Tools]
-Color Picker,{e}cpicker.exe
+Color Picker,{b}cpicker.exe
 -
-Run Script,{e}scripts/{n}.qse
+Run Script,{b}scripts/{n}.qse
 
 [&Code]
-Cosmopolitan Hello World,{e}textape/hello.txt
-APE Minimal Example,{e}textape/minimal.txt
+Cosmopolitan Hello World,{b}textape/hello.c
+APE Minimal Example,{b}textape/minimal.c
 -
-Insert Comment Block,{e}textape/comment.txt
+Insert Comment Block,{b}textape/comment.txt
 
 [Con&versions]
-Text to HEX,{e}multitool.exe 5
+Text to HEX,{b}multitool.exe 5
 
 [&Text]
-Insert STACKFRAME,{e}textape/stackframe.txt
-Insert NOSTACKFRAME,{e}textape/nostackframe.txt
+Insert STACKFRAME,{b}textape/stackframe.asm
+Insert NOSTACKFRAME,{b}textape/nostackframe.asm
 -
-Insert Comment Block,{e}textape/comment.txt
+Insert Comment Block,{b}textape/comment.txt
 
 [&Help]
 About tedit-cosmo,about
@@ -32,4 +63,3 @@ Cosmopolitan Docs,https://justine.lol/cosmopolitan/
 jart/cosmopolitan GitHub,https://github.com/jart/cosmopolitan
 -
 MASM Forum,http://www.masm32.com/board/
-
