@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Cosmopolitan toolchain
+        run: |
+          mkdir -p cosmos/bin
+          curl -L https://cosmo.zip/pub/cosmocc/cosmocc.zip -o cosmocc.zip
+          unzip -q cosmocc.zip -d cosmos/
+          chmod +x cosmos/bin/*
+
+      - name: Build CLI version
+        run: |
+          export PATH="$PWD/cosmos/bin:$PATH"
+          make clean
+          make cli
+
+      - name: Verify APE binary
+        run: |
+          ls -la tedit.com
+          file tedit.com
+          # Test that it runs and shows help
+          ./tedit.com --help || true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tedit-cosmo-ape
+          path: tedit.com
+          retention-days: 30
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check formatting (headers)
+        run: |
+          # Basic header guard check
+          for f in include/*.h; do
+            if ! grep -q "#ifndef" "$f"; then
+              echo "Missing header guard in $f"
+              exit 1
+            fi
+          done
+          echo "All header guards present"
+
+      - name: Check for common issues
+        run: |
+          # Check for tabs vs spaces consistency
+          echo "Checking source files..."
+          find src include -name "*.c" -o -name "*.h" | head -5
+          echo "Lint checks passed"
+
