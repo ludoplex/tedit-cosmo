@@ -81,5 +81,46 @@ setup-deps:
 	git clone --recursive https://github.com/ludoplex/cimgui.git deps/cimgui
 
 clean:
-	rm -f $(TARGET) *.o
+	rm -f $(TARGET) *.o test_buffer.com test_history.com
+
+# ============================================================================
+# Test Suite (Unity Framework)
+# ============================================================================
+
+# Unity test framework
+UNITY_SRC = tests/unity/unity.c
+
+# Test sources (just the modules under test, no platform deps)
+TEST_BUFFER_SRC = tests/test_buffer.c src/buffer.c
+TEST_HISTORY_SRC = tests/test_history.c src/history.c
+
+# Test compilation flags (C99 for test code, include paths)
+TEST_CFLAGS = -Wall -Wextra -std=c99 -Iinclude -Itests
+
+.PHONY: test test-buffer test-history
+
+# Run all tests
+test: test-buffer test-history
+	@echo ""
+	@echo "=== Running Buffer Tests ==="
+	./test_buffer.com
+	@echo ""
+	@echo "=== Running History Tests ==="
+	./test_history.com
+	@echo ""
+	@echo "=== All tests complete ==="
+
+# Build and run buffer tests
+test-buffer: test_buffer.com
+	@echo "Buffer tests built: test_buffer.com"
+
+test_buffer.com: $(TEST_BUFFER_SRC) $(UNITY_SRC)
+	$(CC) $(TEST_CFLAGS) -o $@ $(TEST_BUFFER_SRC) $(UNITY_SRC)
+
+# Build and run history tests
+test-history: test_history.com
+	@echo "History tests built: test_history.com"
+
+test_history.com: $(TEST_HISTORY_SRC) $(UNITY_SRC)
+	$(CC) $(TEST_CFLAGS) -o $@ $(TEST_HISTORY_SRC) $(UNITY_SRC)
 
